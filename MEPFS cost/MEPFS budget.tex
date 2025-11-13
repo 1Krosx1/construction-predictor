@@ -1,0 +1,183 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\setlist{noitemsep}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{multicol}
+\graphicspath{{visualizations/}{C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/}}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\microtypesetup{protrusion=true,expansion=true}
+\usepackage{lmodern}
+\usepackage{array}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+
+\title{MEPFS Budget Model: Data, Features, Formulas, and Training}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section*{Process overview (part-by-part)}
+\begin{enumerate}[label=Part~\arabic*:, leftmargin=*]
+  \item Data acquisition and schema normalization (CSV import, header cleaning).
+  \item Data cleaning and target transformation (NaN handling, $\log(1+\cdot)$).
+  \item Feature engineering (parsing building scale, aggregating subsystem costs, creating normalized cost-per-unit metrics).
+  \item Feature matrix construction (8 raw engineered inputs).
+  \item Polynomial expansion (degree 2) and standardization (z-score).
+  \item Train/test split (80/20 holdout).
+  \item Baseline model training (LSBoost) and evaluation.
+  \item Feature selection via ensemble importances (median threshold).
+  \item Hyperparameter optimization (Bayesian) and final model training.
+  \item Final evaluation, artifacts saving, and inference pipeline.
+\end{enumerate}
+
+\section*{Variables glossary (concise definitions)}
+\begingroup
+\setlength{\tabcolsep}{4pt}
+\scriptsize
+\noindent\begin{tabularx}{\textwidth}{@{} l l l l X @{} }
+\toprule
+Clean name & Source header & Type & Unit & Definition / Role \\
+\midrule
+project & Project & text & n/a & Project title; used to parse \code{num_storeys}, \code{num_classrooms} via regex. \\
+year & Year & numeric & year & Project year; raw feature. \\
+budget & Budget & numeric & PHP & Target variable; filtered to >100,000 then log-transformed. \\
+\code{num_storeys} & parsed from project & numeric & count & Integer before “STY”; mean-imputed if missing. \\
+\code{num_classrooms} & parsed from project & numeric & count & Integer before “CL”; mean-imputed if missing. \\
+\multicolumn{5}{@{}l}{Derived MEPFS Aggregates \& Ratios} \\
+\addlinespace[2pt]
+\code{total_electrical_cost} & sum of electrical columns & numeric & PHP & Sum of costs for panelboards, lighting, conduits, and wires. \\
+\code{total_plumbing_sewer_cost} & sum of plumbing columns & numeric & PHP & Sum of costs for sewer lines and plumbing fixtures. \\
+\code{electrical_cost_per_classroom} & derived & numeric & PHP/classroom & \code{total_electrical_cost} / \code{num_classrooms}. Captures electrical cost intensity. \\
+\code{plumbing_cost_per_classroom} & derived & numeric & PHP/classroom & \code{total_plumbing_sewer_cost} / \code{num_classrooms}. Captures plumbing cost intensity. \\
+\code{fire_alarm_cost_per_classroom} & derived & numeric & PHP/classroom & Cost of fire alarm system / \code{num_classrooms}. Captures safety system cost intensity. \\
+\bottomrule
+\end{tabularx}
+\endgroup
+\normalsize
+
+\section*{Final raw feature set (8 inputs) and counting proof}
+The MEPFS training script fixes the raw input vector to the following 8 features:
+\[
+X_{\text{raw}} = [\,\text{year},\ \text{num\_storeys},\ \text{num\_classrooms},\ \code{total_electrical_cost},\ \code{total_plumbing_sewer_cost},\ \code{electrical_cost_per_classroom},\ \code{plumbing_cost_per_classroom},\ \code{fire_alarm_cost_per_classroom}\,].
+\]
+Count: \(p=8\). Degree-2 polynomial design yields exactly
+\[
+\underbrace{p}_{\text{originals}} + \underbrace{p}_{\text{squares}} + \underbrace{\binom{p}{2}}_{\text{pairwise interactions}}
+= 8 + 8 + 28 = 44 \text{ features.}
+\]
+
+\section*{Why exactly 8 input features? Justification of Feature Engineering}
+The 8 features were engineered to capture project scale, subsystem costs, and normalized intensity metrics, providing a robust basis for the model while avoiding multicollinearity from raw, disaggregated cost items.
+\[\underbrace{1}_{\text{year}} + \underbrace{2}_{\text{parsed}} + \underbrace{2}_{\text{aggregates}} + \underbrace{3}_{\text{ratios}} = 8.\]
+\begin{itemize}
+    \item \textbf{Year (1):} \code{year} accounts for temporal variations like inflation.
+    \item \textbf{Parsed from Project (2):} \code{num\_storeys} and \code{num\_classrooms} are high-level proxies for the building's physical scale.
+    \item \textbf{Aggregated Costs (2):} \code{total\_electrical\_cost} and \code{total\_plumbing\_sewer\_cost} consolidate individual line items into stable, high-level predictors for major subsystems. This reduces noise and redundancy.
+    \item \textbf{Normalized Ratios (3):} The \code{..._per_classroom} features are crucial. They normalize subsystem costs by the project's programmatic size (\code{num_classrooms}), creating features that measure cost \textit{intensity}. This helps the model generalize across projects of different sizes by learning the typical cost per functional unit, rather than just total cost.
+\end{itemize}
+
+\section*{Polynomial/interaction expansion and scaling}
+We build degree-2 features via \code{generatePolyFeatures(T,2)} and compute z-scores on the training split only:
+\[
+\mu_j = \frac{1}{n}\sum_i X_{ij},\quad \sigma_j = \sqrt{\tfrac{1}{n-1}\sum_i (X_{ij}-\mu_j)^2},\quad Z_{ij}=\frac{X_{ij}-\mu_j}{\sigma_j},\ \text{NaN}\to 0.
+\]
+
+\section*{Train/test split and targets}
+We hold out 20\% using \code{cvpartition(HoldOut=0.2)}. The response is $y=\log(1+\text{budget})$; predictions are inverted with $\exp(\cdot)-1$ for reporting in PHP.
+
+\section*{Baseline and optimized models}
+\textbf{Baseline} uses LSBoost with \code{NumLearningCycles=250} on the scaled 44 features.
+\textbf{Feature selection} keeps features with importance above the median (per \code{predictorImportance}).
+\textbf{Optimized model} is LSBoost with hyperparameters tuned via Bayesian optimization over: cycles [500,1000], splits [8,32], learn rate [0.01,0.1] (log-scale).
+
+\section*{Figures (testing evidence)}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.6\textwidth]{actual_vs_predicted_mepfs.png}
+  \caption{Actual vs. Predicted (held-out test).}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.6\textwidth]{residual_plot_mepfs.png}
+  \caption{Residuals vs. Predicted.}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.6\textwidth]{performance_comparison_mepfs.png}
+  \caption{Baseline vs. Optimized performance (R$^2$, MAE) on test split.}
+\end{figure}
+
+\section*{Testing metrics (numerical summary)}
+To document exact test-set performance, we include an auto-generated snippet if available.
+\\
+\IfFileExists{mepfs_metrics.tex}{\input{mepfs_metrics.tex}}{\noindent (Run a script to generate and include the exact metrics.)}
+
+\section*{Exact numbers behind feature-importance}
+For tree ensembles like the LSBoost model used here, feature importance is calculated by summing the reductions in Mean Squared Error (MSE) at every split in every tree where that feature is used. The reduction is weighted by the number of observations at the node being split. This method quantifies how much each feature contributes to improving the model's predictive accuracy.
+
+The formula for the importance of a single feature $j$ is:
+\[
+\mathrm{Imp}(j) = \sum_{t \in \text{trees}} \sum_{n \in \mathcal{N}_{t,j}} \left( \Delta\mathrm{MSE}(n) \times w(n) \right)
+\]
+where:
+\begin{itemize}
+    \item $\mathcal{N}_{t,j}$ is the set of nodes in tree $t$ that use feature $j$ for a split.
+    \item $\Delta\mathrm{MSE}(n)$ is the reduction in MSE achieved by splitting node $n$.
+    \item $w(n)$ is a weight representing the number of training samples at node $n$.
+\end{itemize}
+The bar chart below visualizes these raw importance scores for the top-20 features from the final optimized model, sorted in descending order.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.8\textwidth]{feature_importance_final_mepfs.png}
+  \caption{Top-20 feature importances of the optimized MEPFS ensemble.}
+  \label{fig:feature_importances_top20_mepfs}
+\end{figure}
+\medskip
+\noindent If generated, the exact table will be included below:
+\IfFileExists{importance_top20_mepfs.tex}{\input{importance_top20_mepfs.tex}}{\noindent (Run a script to export and include exact values.)}
+
+\section*{Model Architecture and Components (Answering Key Questions)}
+This section addresses common questions regarding the model's structure, inputs, and outputs.
+
+\subsection*{What are the inputs and output?}
+\begin{itemize}
+    \item \textbf{Inputs:} The model takes a vector of 8 raw engineered features as input, detailed in the "Variables glossary." These are expanded into a 44-feature set including quadratic and interaction terms.
+    \item \textbf{Output:} The model predicts a single value: the construction budget in PHP. It is trained on the log-transformed budget, and the final output is converted back to PHP.
+\end{itemize}
+
+\subsection*{What is the model's structure (e.g., layers, activation functions)?}
+The model is a \textbf{Least-Squares Boosting (LSBoost) ensemble}, not a neural network.
+\begin{itemize}
+    \item \textbf{"Layers":} The "layers" are the individual decision trees. The optimized model uses 500-1000 trees.
+    \item \textbf{"Activation Functions":} Decision trees use binary splits on feature values, not continuous activation functions.
+\end{itemize}
+
+\subsection*{What are the biases and weights?}
+\begin{itemize}
+    \item \textbf{Biases:} The model has no global bias term.
+    \item \textbf{Weights (Feature Importance):} The equivalent of "weights" is \textbf{feature importance}, which measures a feature's contribution to error reduction. The feature importance plot shows which inputs are most predictive.
+\end{itemize}
+
+\subsection*{How do you demonstrate the output is close to actual values?}
+We validate the model on a 20\% held-out test set.
+\begin{itemize}
+    \item \textbf{Visual Evidence:} The "Actual vs. Predicted" plot shows predictions clustering tightly around the ideal diagonal line.
+    \item \textbf{Quantitative Metrics:} We use R-Squared ($R^2$) and Mean Absolute Error (MAE) to measure accuracy. High $R^2$ and low MAE on the test set confirm the model's reliability.
+\end{itemize}
+
+\section*{Inference pipeline (single row)}
+\begin{enumerate}
+  \item Normalize field names; compute aggregate costs and per-classroom ratios.
+  \item Order to final 8 features; build degree-2 features; align to training names.
+  \item Standardize with saved $\mu,\sigma$; apply selected feature mask; predict in log-space; invert with $\exp(\cdot)-1$.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,272 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\setlist{noitemsep}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{multicol}
+\graphicspath{{visualizations/}{C:/Users/User/Documents/MATLAB/Struc cost/visualizations/}}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\microtypesetup{protrusion=true,expansion=true}
+\usepackage{lmodern}
+\usepackage{array}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+
+\title{Structural Budget Model: Data, Features, Formulas, Training and Testing}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section*{Process overview (part-by-part)}
+\begin{enumerate}[label=Part~\arabic*:, leftmargin=*]
+  \item Data acquisition and schema normalization (CSV import, header cleaning).
+  \item Data cleaning and target transformation (NaN handling, $\log(1+\cdot)$).
+  \item Feature engineering (regex parsing, derived totals/ratios).
+  \item Feature matrix construction (9 raw engineered inputs).
+  \item Polynomial expansion (degree 2) and standardization (z-score).
+  \item Train/test split (80/20 holdout).
+  \item Baseline model training (LSBoost) and evaluation.
+  \item Feature selection via ensemble importances (median threshold).
+  \item Hyperparameter optimization (Bayesian) and final model training.
+  \item Final evaluation, artifacts saving, and inference pipeline.
+\end{enumerate}
+
+\section*{Variables glossary (concise definitions)}
+\begingroup
+\setlength{\tabcolsep}{4pt}
+\scriptsize
+\noindent\begin{tabularx}{\textwidth}{@{} l l l l X @{} }
+\toprule
+Clean name & Source header & Type & Unit & Definition / Role \\
+\midrule
+project & Project & text & n/a & Project title; used to parse \verb|num_storeys|, \verb|num_classrooms| via regex. \\
+year & Year & numeric & year & Project year; raw feature. \\
+budget & Budget & numeric & PHP & Target variable; filtered to >100,000 then log-transformed. \\
+\verb|num_storeys| & parsed from project & numeric & count & Integer before “STY”; median-imputed if missing. \\
+\verb|num_classrooms| & parsed from project & numeric & count & Integer before “CL”; median-imputed if missing. \\
+\multicolumn{5}{@{}l}{Derived structural aggregates} \\
+\addlinespace[2pt]
+\verb|total_gross_floor_area| & sum of columns containing “grossfloorarea” & numeric & sq.m. & Total gross floor area across all floor-finish variants. \\
+\verb|total_concrete_volume| & sum of columns containing “volumeofstructuralconcrete” & numeric & cu.m. & Total structural concrete volume across categories. \\
+\verb|total_reinforcing_steel| & Grade 40 + Grade 60 & numeric & kg (assumed) & Sum of reinforcing steel by grade. \\
+\verb|areaofformworks_sq_m__| & any column containing “formworks” & numeric & sq.m. & Area of formworks; auto-detected; used as-is. \\
+\multicolumn{5}{@{}l}{Normalized ratios} \\
+\addlinespace[2pt]
+\verb|concrete_per_floor_area| & derived & numeric & cu.m./sq.m. & \verb|total_concrete_volume| / \verb|total_gross_floor_area|; NaN/Inf -> 0. \\
+\verb|steel_per_concrete| & derived & numeric & ratio & \verb|total_reinforcing_steel| / \verb|total_concrete_volume|; NaN/Inf -> 0. \\
+\bottomrule
+\end{tabularx}
+\endgroup
+\normalsize
+
+\section*{Exact cleaned variable names (after makeValidName + lower)}
+Examples from CSV to cleaned names:
+\begin{itemize}
+  \item Budget $\to$ \verb|budget|; Year $\to$ \verb|year|; Grade 40 $\to$ \verb|grade40|; Grade 60 $\to$ \verb|grade60|.
+  \item Gross floor area (Cement floor finish) $\to$ \verb|grossfloorarea_cementfloorfinish| (pattern: contains ``grossfloorarea'').
+  \item Volume of structural concrete (cu.m.) ... $\to$ \verb|volumeofstructuralconcrete_cu_m__...| (pattern: contains ``volumeofstructuralconcrete'').
+  \item Area of formworks (sq.m.) $\to$ \verb|areaofformworks_sq_m__| (auto-detected by substring ``formworks'').
+\end{itemize}
+
+\section*{Final raw feature set (9 inputs) and counting proof}
+The structural training script fixes the raw input vector to the following 9 features (see Part~4 in \verb|main.m|):
+\[
+X_{\text{raw}} = [\,\text{year},\ \text{num\_storeys},\ \text{num\_classrooms},\ \verb|total_gross_floor_area|,\ \verb|total_concrete_volume|,\ \verb|total_reinforcing_steel|,\ \verb|areaofformworks_sq_m__|,\ \verb|concrete_per_floor_area|,\ \verb|steel_per_concrete|\,].
+\]
+Count: \(p=9\). Degree-2 polynomial design yields exactly
+\[
+\underbrace{p}_{\text{originals}} + \underbrace{p}_{\text{squares}} + \underbrace{\binom{p}{2}}_{\text{pairwise interactions}}
+= 9 + 9 + 36 = 54 \text{ features.}
+\]
+
+\section*{Why exactly 9 input features? Justification of Feature Engineering}
+The structural training code fixes the raw input vector to 9 features to avoid target leakage while capturing the project's structural scope and material intensity. This curated set provides a robust and interpretable basis for the model.
+\[\underbrace{1}_{\text{year}} + \underbrace{2}_{\text{parsed from project}} + \underbrace{4}_{\text{structural aggregates}} + \underbrace{2}_{\text{normalized ratios}} = 9.\]
+\begin{itemize}
+    \item \textbf{Year (1):} \code{year} is included to account for temporal variations, such as inflation in material and labor costs over time.
+    \item \textbf{Parsed from Project (2):} \code{num\_storeys} and \code{num\_classrooms} are extracted from the project title via regular expressions. They serve as high-level proxies for the building's vertical scale and programmatic size, which are fundamental drivers of structural cost.
+    \item \textbf{Structural Aggregates (4):} \code{total\_gross\_floor\_area}, \code{total\_concrete\_volume}, \code{total\_reinforcing\_steel}, and \code{areaofformworks\_sq\_m__} represent the core material quantities that define the structural system. They are aggregated from more granular data to create stable, summary predictors of the primary structural components.
+    \item \textbf{Normalized Ratios (2):} \code{concrete\_per\_floor\_area} and \code{steel\_per\_concrete} are engineered to measure material intensity. By normalizing structural mass (concrete, steel) relative to the building's size or other materials, these ratios capture the structural system's efficiency and complexity, allowing the model to generalize better across projects of different scales. For instance, a higher \code{steel\_per\_concrete} ratio might indicate a more complex or load-intensive design.
+\end{itemize}
+
+\section*{Complete polynomial feature list (54 features)}
+Given $p=9$ inputs, \verb|generatePolyFeatures(T,2)| emits:
+\subsection*{Original 9}
+\noindent\small
+\verb|year|, \verb|num_storeys|, \verb|num_classrooms|, \verb|total_gross_floor_area|, \verb|total_concrete_volume|, \verb|total_reinforcing_steel|, \verb|areaofformworks_sq_m__|, \verb|concrete_per_floor_area|, \verb|steel_per_concrete|
+\normalsize
+
+\subsection*{9 squares}
+\noindent\small
+\verb|year^2|, \verb|num_storeys^2|, \verb|num_classrooms^2|, \verb|total_gross_floor_area^2|, \verb|total_concrete_volume^2|, \verb|total_reinforcing_steel^2|, \verb|areaofformworks_sq_m__^2|, \verb|concrete_per_floor_area^2|, \verb|steel_per_concrete^2|
+\normalsize
+
+\subsection*{36 pairwise interactions}
+\footnotesize
+\begin{multicols}{2}
+\begin{itemize}[leftmargin=*]
+  \item \verb|year*num_storeys|\item \verb|year*num_classrooms|\item \verb|year*total_gross_floor_area|\item \verb|year*total_concrete_volume|\item \verb|year*total_reinforcing_steel|\item \verb|year*areaofformworks_sq_m__|\item \verb|year*concrete_per_floor_area|\item \verb|year*steel_per_concrete|
+  \item \verb|num_storeys*num_classrooms|\item \verb|num_storeys*total_gross_floor_area|\item \verb|num_storeys*total_concrete_volume|\item \verb|num_storeys*total_reinforcing_steel|\item \verb|num_storeys*areaofformworks_sq_m__|\item \verb|num_storeys*concrete_per_floor_area|\item \verb|num_storeys*steel_per_concrete|
+  \item \verb|num_classrooms*total_gross_floor_area|\item \verb|num_classrooms*total_concrete_volume|\item \verb|num_classrooms*total_reinforcing_steel|\item \verb|num_classrooms*areaofformworks_sq_m__|\item \verb|num_classrooms*concrete_per_floor_area|\item \verb|num_classrooms*steel_per_concrete|
+  \item \verb|total_gross_floor_area*total_concrete_volume|\item \verb|total_gross_floor_area*total_reinforcing_steel|\item \verb|total_gross_floor_area*areaofformworks_sq_m__|\item \verb|total_gross_floor_area*concrete_per_floor_area|\item \verb|total_gross_floor_area*steel_per_concrete|
+  \item \verb|total_concrete_volume*total_reinforcing_steel|\item \verb|total_concrete_volume*areaofformworks_sq_m__|\item \verb|total_concrete_volume*concrete_per_floor_area|\item \verb|total_concrete_volume*steel_per_concrete|
+  \item \verb|total_reinforcing_steel*areaofformworks_sq_m__|\item \verb|total_reinforcing_steel*concrete_per_floor_area|\item \verb|total_reinforcing_steel*steel_per_concrete|
+  \item \verb|areaofformworks_sq_m__*concrete_per_floor_area|\item \verb|areaofformworks_sq_m__*steel_per_concrete|
+  \item \verb|concrete_per_floor_area*steel_per_concrete|
+\end{itemize}
+\end{multicols}
+\normalsize
+
+\section*{Polynomial/interaction expansion and scaling}
+We build degree-2 features via \verb|generatePolyFeatures(T,2)| and compute z-scores on the training split only:
+\[
+\mu_j = \frac{1}{n}\sum_i X_{ij},\quad \sigma_j = \sqrt{\tfrac{1}{n-1}\sum_i (X_{ij}-\mu_j)^2},\quad Z_{ij}=\frac{X_{ij}-\mu_j}{\sigma_j},\ \text{NaN}\to 0.
+\]
+
+\section*{Train/test split and targets}
+We hold out 20\% using \verb|cvpartition(HoldOut=0.2)|. The response is $y=\log(1+\text{budget})$; predictions are inverted with $\exp(\cdot)-1$ for reporting in PHP.
+
+\section*{Baseline and optimized models}
+\textbf{Baseline} uses LSBoost with \verb|NumLearningCycles=100| on the scaled 54 features.
+\begin{itemize}
+  \item Metrics on the held-out test set: report $R^2$ and MAE; see figures below.
+\end{itemize}
+\textbf{Feature selection} keeps features with importance above the median (per \verb|predictorImportance|), reducing variance and focusing on predictive interactions.
+\textbf{Optimized model} is LSBoost with hyperparameters tuned via Bayesian optimization over: cycles [500,1000], splits [8,32], learn rate [0.01,0.1] (log-scale).
+
+\section*{Figures (testing evidence)}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.6\textwidth]{actual_vs_predicted_structural.png}
+  \caption{Actual vs. Predicted (held-out test). Tight clustering along the diagonal indicates good fit.}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.6\textwidth]{residual_plot_structural.png}
+  \caption{Residuals vs. Predicted. Random scatter around zero suggests low bias and well-calibrated variance.}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.6\textwidth]{performance_comparison_structural.png}
+  \caption{Baseline vs. Optimized performance (R$^2$, MAE) on test split.}
+\end{figure}
+
+\section*{Testing metrics (numerical summary)}
+To document exact test-set performance (R$^2$, MAE, selected feature count), we include an auto-generated snippet if available.
+\\
+\IfFileExists{structural_metrics.tex}{\input{structural_metrics.tex}}{\noindent (Run \texttt{export\_structural\_metrics.m} to generate and include the exact metrics with a fixed RNG seed.)}
+
+\section*{Testing metrics: definitions}
+Given actual budgets in PHP on the test split ($y_i$) and predictions ($\hat{y}_i$) after inversion from log-space:
+\[
+R^2 = 1 - \frac{\sum_i (y_i-\hat{y}_i)^2}{\sum_i (y_i-\bar{y})^2},\qquad
+\mathrm{MAE} = \frac{1}{n}\sum_i |y_i-\hat{y}_i|.
+\]
+The exported snippet (if present) reports these exact values for both baseline and optimized models.
+
+\section*{Quantitative justification of testing}
+- Metrics are computed on the 20\% holdout only; no training rows are reused.\\
+- Predictions are produced in log-space and inverted with $\exp(\cdot)-1$ before computing MAE and R$^2$ in PHP.\\
+- Feature selection threshold is the median of baseline importances; the included metrics snippet reports the exact count retained.
+
+\section*{Exact numbers behind feature-importance}
+For tree ensembles like the LSBoost model used here, feature importance is calculated by summing the reductions in Mean Squared Error (MSE) at every split in every tree where that feature is used. The reduction is weighted by the number of observations at the node being split. This method, often called "Gini importance" or "mean decrease in impurity," quantifies how much a feature contributes to improving the model's accuracy.
+
+The formula for the importance of a single feature $j$ is:
+\[
+\mathrm{Imp}(j) = \sum_{t \in \text{trees}} \sum_{n \in \mathcal{N}_{t,j}} \left( \Delta\mathrm{MSE}(n) \times w(n) \right)
+\]
+where:
+\begin{itemize}
+    \item $\mathcal{N}_{t,j}$ is the set of nodes in tree $t$ that use feature $j$ for a split.
+    \item $\Delta\mathrm{MSE}(n)$ is the reduction in MSE achieved by splitting node $n$.
+    \item $w(n)$ is a weight representing the number of training samples at node $n$.
+\end{itemize}
+The bar chart below visualizes these raw importance scores for the top-20 features, sorted in descending order.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.8\textwidth]{importance_top20_structural.png}
+  \caption{Top-20 feature importances of the optimized structural ensemble.}
+  \label{fig:feature_importances_top20_structural}
+\end{figure}
+
+\medskip
+\noindent If generated, the exact table will be included below:
+\IfFileExists{importance_top20_structural.tex}{\input{importance_top20_structural.tex}}{\noindent (Run \texttt{extract\_feature\_importances\_structural.m} to export and include exact values.)}
+
+\subsection*{Quantitative justification (using extracted values)}
+Using the optimized structural ensemble’s exact importances (Table~\ref{tab:feature_importances_top20_structural}):
+\begin{itemize}
+  \item Top feature: \verb|total_reinforcing_steel*steel_per_concrete| = 29.10\% of total importance.
+  \item Next: \verb|total_concrete_volume*total_reinforcing_steel| = 12.41\%; \verb|total_gross_floor_area*total_concrete_volume| = 11.76\%.
+  \item Additional leaders: \verb|num_storeys*total_concrete_volume| = 6.62\%; \verb|total_gross_floor_area| = 6.00\%; \verb|num_storeys*total_gross_floor_area| = 5.94\%.
+  \item Cumulative contributions: top-3 = 53.27\%, top-5 = 65.89\%, top-10 = 87.05\% of total importance (rounding may cause small discrepancies).
+\end{itemize}
+Interpretation:
+\begin{itemize}
+  \item \textbf{Steel intensity and mass dominate:} The leading term \verb|steel*steel_per_concrete| (29.10\%) and \verb|concrete*steel| (12.41\%) show that reinforcement quantity together with reinforcement intensity per concrete volume is the primary driver.
+  \item \textbf{Concrete and scale effects:} \verb|floor_area*concrete_volume| (11.76\%) and \verb|num_storeys*concrete_volume| (6.62\%) indicate joint influence of building size and structural mass on cost.
+  \item \textbf{Gross floor area is independently predictive:} \verb|total_gross_floor_area| contributes 6.00\% on its own, with \verb|num_storeys*total_gross_floor_area| adding 5.94\%.
+  \item \textbf{Program size and time provide secondary signal:} \verb|num_classrooms*total_reinforcing_steel| (5.42\%), \verb|year*num_classrooms| (2.32\%), and \verb|year| (2.04\%).
+  \item \textbf{Formworks and intensities add refinements:} \verb|areaofformworks*concrete_per_floor_area| (2.27\%), \verb|floor_area*areaofformworks| (2.27\%), \verb|concrete_volume*areaofformworks| (1.00\%), with base intensities \verb|concrete_per_floor_area| (0.84\%) and \verb|steel_per_concrete| (0.75\%).
+\end{itemize}
+
+\section*{Model Architecture and Components (Answering Key Questions)}
+This section addresses common questions regarding the model's structure, inputs, and outputs, analogous to specifying the architecture of a neural network.
+
+\subsection*{What are the inputs and output?}
+\begin{itemize}
+    \item \textbf{Inputs:} The model takes a vector of 9 raw engineered features as its input. These features, which include project year, building dimensions (storeys, classrooms), and aggregated material quantities (concrete, steel, formworks), are detailed in the "Variables glossary" section. These 9 features are then expanded into a 54-feature set including quadratic and interaction terms to capture more complex relationships.
+    \item \textbf{Output:} The model produces a single continuous value as its output: the predicted construction budget in Philippine Pesos (PHP). The model is trained to predict the natural logarithm of the budget ($\log(1+\text{budget})$) to stabilize training, and the final output is transformed back to the original PHP scale using the exponential function ($\exp(\cdot)-1$).
+\end{itemize}
+
+\subsection*{What is the model's structure (e.g., layers, activation functions)?}
+The model is not a traditional Artificial Neural Network (ANN) but a \textbf{Least-Squares Boosting (LSBoost) ensemble}, which consists of multiple decision trees trained sequentially.
+\begin{itemize}
+    \item \textbf{"Layers":} In this context, the "layers" are the individual decision trees within the ensemble. The optimized model uses between 500 and 1000 such trees (learning cycles), as determined by Bayesian optimization. Each tree is shallow, with the number of splits per tree controlled by a hyperparameter tuned between 8 and 32.
+    \item \textbf{"Activation Functions":} Decision trees do not use activation functions in the same way neural networks do. Instead, they make decisions by partitioning the data at each node based on feature values. The "activation" is effectively a series of binary splits.
+\end{itemize}
+
+\subsection*{What are the biases and weights?}
+For a tree ensemble, the concepts of "biases" and "weights" are different from those in linear models or ANNs.
+\begin{itemize}
+    \item \textbf{Biases:} The model does not have a global bias term. The predictive logic is entirely contained within the structure of the decision trees.
+    \item \textbf{Weights (Feature Importance):} The closest equivalent to input "weights" is \textbf{feature importance}. Instead of a single weight per feature, importance measures how much a feature contributes to reducing the model's error across all the decision trees in the ensemble. The section "Exact numbers behind feature-importance" provides a detailed breakdown and formula for this, showing which features have the most predictive power. For example, the interaction between reinforcing steel quantity and steel intensity (\code{total_reinforcing_steel*steel_per_concrete}) is the most influential predictor.
+\end{itemize}
+
+\subsection*{How do you demonstrate the output is close to actual values?}
+We validate the model's accuracy on a held-out test set, which contains 20\% of the data that the model has never seen during training. This is crucial for an honest assessment of its performance.
+\begin{itemize}
+    \item \textbf{Visual Evidence:} The "Actual vs. Predicted" plot in the "Figures" section provides a direct visual comparison. A strong model will have points clustered tightly around the 45-degree diagonal line, indicating that predicted values are close to actual values.
+    \item \textbf{Quantitative Metrics:} We use standard regression metrics like R-Squared ($R^2$) and Mean Absolute Error (MAE), defined in the "Testing metrics" section. A high $R^2$ (close to 1.0) and a low MAE (in PHP) confirm that the model's predictions are accurate and reliable. The exact values for the final model are exported to the \code{structural_metrics.tex} file.
+\end{itemize}
+
+\section*{Why each part matters (training to testing)}
+\begin{enumerate}[label=Part~\arabic*:, leftmargin=*]
+  \item \textbf{Schema normalization.} Stabilizes names/types so engineered features map reliably to source columns; prevents header drift issues.
+  \item \textbf{Cleaning and log target.} Median imputation preserves central tendency; $\log(1+\cdot)$ reduces skew and improves squared-error training stability.
+  \item \textbf{Feature engineering.} Encodes structural scope: floor area, concrete volume, steel, and formworks; ratios normalize for size (intensities per area/volume).
+  \item \textbf{9-input feature matrix.} Compact, interpretable interface that avoids target leakage and simplifies inference.
+  \item \textbf{Quadratic expansion + z-score.} Adds curvature and interactions while keeping features comparable in scale; improves optimization and regularization.
+  \item \textbf{Holdout split.} Provides an unbiased generalization estimate; all testing figures/metrics come from this split.
+  \item \textbf{Baseline LSBoost.} Establishes a numeric baseline (R$^2$, MAE) and diagnostics (residuals, importances) to validate signal.
+  \item \textbf{Feature selection.} Reduces noise/variance by removing weak signals; focuses search on predictive interactions.
+  \item \textbf{Bayesian tuning.} Optimizes bias–variance (cycles, splits, learning rate) to improve test R$^2$ and MAE.
+  \item \textbf{Evaluation and parity.} Converts predictions back to PHP; packages assets (\verb|mu|, \verb|sigma|, masks, feature lists) to guarantee training–serving parity.
+\end{enumerate}
+
+\section*{Inference pipeline (single row)}
+\begin{enumerate}
+  \item Normalize field names; compute totals (floor area, concrete volume, steel) and ratios if missing.
+  \item Order to final 9 features; build degree-2 features; align to training names.
+  \item Standardize with saved $\mu,\sigma$; apply selected feature mask; predict in log-space; invert with $\exp(\cdot)-1$.
+\end{enumerate}
+
+\end{document}
