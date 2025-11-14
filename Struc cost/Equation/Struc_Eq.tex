@@ -218,34 +218,38 @@ Interpretation:
   \item \textbf{Formworks and intensities add refinements:} \verb|areaofformworks*concrete_per_floor_area| (2.27\%), \verb|floor_area*areaofformworks| (2.27\%), \verb|concrete_volume*areaofformworks| (1.00\%), with base intensities \verb|concrete_per_floor_area| (0.84\%) and \verb|steel_per_concrete| (0.75\%).
 \end{itemize}
 
-\section*{Model Architecture and Components (Answering Key Questions)}
-This section addresses common questions regarding the model's structure, inputs, and outputs, analogous to specifying the architecture of a neural network.
+\section*{Model Architecture: Why No Hidden Layers?}
+The model used for structural budget prediction is a \textbf{Least-Squares Boosting (LSBoost) ensemble}, a powerful machine learning technique based on decision trees. It is fundamentally different from a neural network and, as a result, \textbf{does not have hidden layers}. This section explains the model's structure, its parameters, and the importance of this architectural choice.
 
-\subsection*{What are the inputs and output?}
+\subsection*{Architectural Parameters (The Analog to "Layers")}
+Instead of layers, weights, and activation functions, the complexity of an LSBoost model is defined by its component trees. The key architectural parameters are:
 \begin{itemize}
-    \item \textbf{Inputs:} The model takes a vector of 9 raw engineered features as its input. These features, which include project year, building dimensions (storeys, classrooms), and aggregated material quantities (concrete, steel, formworks), are detailed in the "Variables glossary" section. These 9 features are then expanded into a 54-feature set including quadratic and interaction terms to capture more complex relationships.
-    \item \textbf{Output:} The model produces a single continuous value as its output: the predicted construction budget in Philippine Pesos (PHP). The model is trained to predict the natural logarithm of the budget ($\log(1+\text{budget})$) to stabilize training, and the final output is transformed back to the original PHP scale using the exponential function ($\exp(\cdot)-1$).
+    \item \textbf{Number of Trees (\texttt{NumLearningCycles}):} This is the total number of decision trees in the ensemble. Each tree is trained sequentially to correct the errors of the one before it. This is the most direct analog to the "depth" or "size" of a neural network.
+        \begin{itemize}
+            \item \textbf{Baseline Model:} Uses a fixed number of \textbf{100 trees}.
+            \item \textbf{Optimized Model:} The number of trees is automatically tuned by searching for the best value within the range of \textbf{500 to 1000 trees}.
+        \end{itemize}
+    \item \textbf{Tree Depth (\texttt{MaxNumSplits}):} This parameter controls the complexity of each individual tree by limiting how many decision points (splits) it can have.
+        \begin{itemize}
+            \item \textbf{Baseline Model:} Uses the default value of \textbf{10 splits}.
+            \item \textbf{Optimized Model:} The depth is tuned by searching for the best value between \textbf{8 and 32 splits}.
+        \end{itemize}
 \end{itemize}
 
-\subsection*{What is the model's structure (e.g., layers, activation functions)?}
-The model is not a traditional Artificial Neural Network (ANN) but a \textbf{Least-Squares Boosting (LSBoost) ensemble}, which consists of multiple decision trees trained sequentially.
+\subsection*{Justification for Hyperparameter Ranges in the Optimized Model}
+The optimized model does not have a single, fixed number for its parameters because it uses \textbf{Bayesian optimization}. This is an intelligent and automated process for finding the best-performing combination of hyperparameters.
 \begin{itemize}
-    \item \textbf{"Layers":} In this context, the "layers" are the individual decision trees within the ensemble. The optimized model uses between 500 and 1000 such trees (learning cycles), as determined by Bayesian optimization. Each tree is shallow, with the number of splits per tree controlled by a hyperparameter tuned between 8 and 32.
-    \item \textbf{"Activation Functions":} Decision trees do not use activation functions in the same way neural networks do. Instead, they make decisions by partitioning the data at each node based on feature values. The "activation" is effectively a series of binary splits.
+    \item \textbf{Search Space:} We define a \textit{range} of possible values for each parameter (e.g., `[500, 1000]` for trees).
+    \item \textbf{Automated Search:} The algorithm iteratively trains different model versions, using the results from past attempts to intelligently decide which combination to try next. This is far more efficient than manual trial-and-error.
+    \item \textbf{Result:} The final "optimized" model is the one that performed best during this search. Its exact number of trees and splits are an \textit{output} of the training process itself, not a predetermined input. The ranges specified here represent the boundaries of that search.
 \end{itemize}
 
-\subsection*{What are the biases and weights?}
-For a tree ensemble, the concepts of "biases" and "weights" are different from those in linear models or ANNs.
+\subsection*{Why This Architecture is Important}
+Choosing a tree-based ensemble like LSBoost over a neural network offers several key advantages for this specific problem:
 \begin{itemize}
-    \item \textbf{Biases:} The model does not have a global bias term. The predictive logic is entirely contained within the structure of the decision trees.
-    \item \textbf{Weights (Feature Importance):} The closest equivalent to input "weights" is \textbf{feature importance}. Instead of a single weight per feature, importance measures how much a feature contributes to reducing the model's error across all the decision trees in the ensemble. The section "Exact numbers behind feature-importance" provides a detailed breakdown and formula for this, showing which features have the most predictive power. For example, the interaction between reinforcing steel quantity and steel intensity (\code{total_reinforcing_steel*steel_per_concrete}) is the most influential predictor.
-\end{itemize}
-
-\subsection*{How do you demonstrate the output is close to actual values?}
-We validate the model's accuracy on a held-out test set, which contains 20\% of the data that the model has never seen during training. This is crucial for an honest assessment of its performance.
-\begin{itemize}
-    \item \textbf{Visual Evidence:} The "Actual vs. Predicted" plot in the "Figures" section provides a direct visual comparison. A strong model will have points clustered tightly around the 45-degree diagonal line, indicating that predicted values are close to actual values.
-    \item \textbf{Quantitative Metrics:} We use standard regression metrics like R-Squared ($R^2$) and Mean Absolute Error (MAE), defined in the "Testing metrics" section. A high $R^2$ (close to 1.0) and a low MAE (in PHP) confirm that the model's predictions are accurate and reliable. The exact values for the final model are exported to the \code{structural_metrics.tex} file.
+    \item \textbf{Interpretability:} Unlike the "black box" nature of neural networks, tree models provide clear \textbf{feature importances}. As shown in Figure~\ref{fig:feature_importances_top20_structural}, we can see exactly which inputs (e.g., the interaction between steel quantity and steel intensity) are the most influential drivers of the budget. This is crucial for understanding the cost structure and building trust in the model's predictions.
+    \item \textbf{Performance on Tabular Data:} For structured, tabular data like this project's dataset, tree-based ensembles often outperform neural networks. They are highly effective at capturing complex, non-linear interactions between features.
+    \item \textbf{Robustness:} The boosting process, where each tree corrects the errors of its predecessors, makes the model robust to noise and outliers in the data.
 \end{itemize}
 
 \section*{Why each part matters (training to testing)}

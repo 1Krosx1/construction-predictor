@@ -1,4 +1,4 @@
-classdef ArchBudgetPredictorApp < matlab.apps.AppBase
+classdef Arch_sample < matlab.apps.AppBase
     % ArchBudgetPredictorApp Programmatic App to predict architectural budget
     % Usage: run by typing `app = ArchBudgetPredictorApp;` in MATLAB command window.
 

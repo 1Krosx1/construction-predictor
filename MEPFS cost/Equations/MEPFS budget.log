@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.9.8)  14 NOV 2025 01:47
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.9.8)  14 NOV 2025 01:43
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**./Struc_Eq.tex
-(Struc_Eq.tex
+**"./MEPFS budget.tex"
+(MEPFS budget.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
@@ -488,9 +488,8 @@ ex.def
 File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count307
 \l__pdf_internal_box=\box103
-)
-No file Struc_Eq.aux.
-\openout1 = `Struc_Eq.aux'.
+) (MEPFS budget.aux)
+\openout1 = `"MEPFS budget.aux"'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 23.
 LaTeX Font Info:    ... okay on input line 23.
@@ -510,6 +509,7 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 23.
 LaTeX Font Info:    ... okay on input line 23.
 LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 23.
 LaTeX Font Info:    ... okay on input line 23.
+
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -545,8 +545,9 @@ LaTeX Font Info:    ... okay on input line 23.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 Package hyperref Info: Link coloring OFF on input line 23.
+(MEPFS budget.out) (MEPFS budget.out)
 \@outlinefile=\write3
-\openout3 = `Struc_Eq.out'.
+\openout3 = `"MEPFS budget.out"'.
 
 
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mki
@@ -646,146 +647,34 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <10.95> on input line 29.
 
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmtt.fd)
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-[]|\T1/lmr/m/n/8 (+20) Definition /
+Underfull \hbox (badness 10000) in paragraph at lines 61--61
+[]|\T1/lmr/m/n/8 (+20) Project ti-tle; used to parse
  []
 
 
-LaTeX Warning: \verb may be unreliable inside tabularx on input line 64.
-
-
-Underfull \hbox (badness 1430) in paragraph at lines 64--64
-[]|\T1/lmr/m/n/8 (+20) Project ti-tle;
+Underfull \hbox (badness 10000) in paragraph at lines 61--61
+[]|\T1/lmr/m/n/8 (+20) Integer be-fore ^^PSTY^^Q; mean-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-[]\T1/lmtt/m/n/8 num_storeys\T1/lmr/m/n/8 (+20) ,
+Underfull \hbox (badness 10000) in paragraph at lines 61--61
+[]|\T1/lmtt/m/n/8 total_electrical_cost \T1/lmr/m/n/8 (+20) /
  []
 
 
-Overfull \hbox (9.01016pt too wide) in paragraph at lines 64--64
-[]\T1/lmtt/m/n/8 num_classrooms
+Underfull \hbox (badness 10000) in paragraph at lines 61--61
+[]|\T1/lmtt/m/n/8 total_plumbing_sewer_cost \T1/lmr/m/n/8 (+20) /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-[]|\T1/lmr/m/n/8 (+20) Target vari-
+Underfull \hbox (badness 7504) in paragraph at lines 61--61
+[]|\T1/lmr/m/n/8 (+20) Cost of fire alarm sys-tem /
  []
 
 
-Underfull \hbox (badness 4391) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) to >100,000
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) then log-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-[]|\T1/lmr/m/n/8 (+20) Integer be-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) fore ^^PSTY^^Q;
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) median-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) imputed if
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) imputed if
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-[]|\T1/lmr/m/n/8 (+20) Total gross
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) floor area
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) across all
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) floor-finish
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-[]|\T1/lmr/m/n/8 (+20) Total struc-
- []
-
-
-Underfull \hbox (badness 4316) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) forc-ing steel
- []
-
-
-Underfull \hbox (badness 1721) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) works; auto-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) detected;
- []
-
-
-Overfull \hbox (38.76016pt too wide) in paragraph at lines 64--64
-[]|[]\T1/lmtt/m/n/8 total_concrete_volume
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) /
- []
-
-
-Overfull \hbox (44.1426pt too wide) in paragraph at lines 64--64
-[]\T1/lmtt/m/n/8 total_gross_floor_area\T1/lmr/m/n/8 (-20) ;
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) NaN/Inf ->
- []
-
-
-Overfull \hbox (47.26016pt too wide) in paragraph at lines 64--64
-[]|[]\T1/lmtt/m/n/8 total_reinforcing_steel
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) /
- []
-
-
-Overfull \hbox (39.8926pt too wide) in paragraph at lines 64--64
-[]\T1/lmtt/m/n/8 total_concrete_volume\T1/lmr/m/n/8 (-20) ;
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 64--64
-\T1/lmr/m/n/8 (+20) NaN/Inf ->
+Overfull \hbox (547.7156pt too wide) detected at line 69
+\OML/lmm/m/it/10.95 X[] \OT1/lmr/m/n/10.95 = [ []\OML/lmm/m/it/10.95 ;  [];  []
+;  [];  [];  [];  [];  [] \OT1/lmr/m/n/10.95 ]\OML/lmm/m/it/10.95 :
  []
 
 [1
@@ -794,164 +683,69 @@ Underfull \hbox (badness 10000) in paragraph at lines 64--64
 AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc}{C:/Users/User/AppDa
 ta/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/User/AppData/Lo
 cal/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 7
-1.
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 8
+0.
 
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-) [2{C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}
-]
-Overfull \hbox (543.51811pt too wide) detected at line 81
-\OML/lmm/m/it/10.95 X[] \OT1/lmr/m/n/10.95 = [ []\OML/lmm/m/it/10.95 ;  [];  []
-;  [];  [];  [];  [];  [];  [] \OT1/lmr/m/n/10.95 ]\OML/lmm/m/it/10.95 :
- []
-
-
-Overfull \hbox (56.15894pt too wide) in paragraph at lines 101--104
-[][]\T1/lmtt/m/n/10 year[]\T1/lmr/m/n/10 (-20) , [][]\T1/lmtt/m/n/10 num_storey
-s[]\T1/lmr/m/n/10 (-20) , [][]\T1/lmtt/m/n/10 num_classrooms[]\T1/lmr/m/n/10 (-
-20) , [][]\T1/lmtt/m/n/10 total_gross_floor_area[]\T1/lmr/m/n/10 (-20) , [][]\T
-1/lmtt/m/n/10 total_concrete_volume[]\T1/lmr/m/n/10 (-20) , [][]\T1/lmtt/m/n/10
- total_reinforcing_steel[]\T1/lmr/m/n/10 (-20) ,
- []
-
-[3{C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc
-}{C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathex.enc}
-]
-Overfull \hbox (119.15875pt too wide) in paragraph at lines 106--109
-[][]\T1/lmtt/m/n/10 year^2[]\T1/lmr/m/n/10 (-20) , [][]\T1/lmtt/m/n/10 num_stor
-eys^2[]\T1/lmr/m/n/10 (-20) , [][]\T1/lmtt/m/n/10 num_classrooms^2[]\T1/lmr/m/n
-/10 (-20) , [][]\T1/lmtt/m/n/10 total_gross_floor_area^2[]\T1/lmr/m/n/10 (-20) 
-, [][]\T1/lmtt/m/n/10 total_concrete_volume^2[]\T1/lmr/m/n/10 (-20) , [][]\T1/l
-mtt/m/n/10 total_reinforcing_steel^2[]\T1/lmr/m/n/10 (-20) ,
- []
-
-
-Overfull \hbox (0.14157pt too wide) in paragraph at lines 117--117
-[][][]\T1/lmtt/m/n/9 total_gross_floor_area*total_reinforcing_steel 
- []
-
-
-Overfull \hbox (0.14157pt too wide) in paragraph at lines 117--117
-[][][]\T1/lmtt/m/n/9 total_gross_floor_area*concrete_per_floor_area 
- []
-
-
-Overfull \hbox (4.86656pt too wide) in paragraph at lines 119--119
-[][][]\T1/lmtt/m/n/9 total_reinforcing_steel*concrete_per_floor_area 
- []
-
-
-Overfull \hbox (0.14157pt too wide) in paragraph at lines 120--120
-[][][]\T1/lmtt/m/n/9 areaofformworks_sq_m__*concrete_per_floor_area 
- []
-
-[4]
-<C:/Users/User/Documents/MATLAB/Struc cost/visualizations/actual_vs_predicted_s
-tructural.png, id=59, 647.0574pt x 389.2944pt>
-File: C:/Users/User/Documents/MATLAB/Struc cost/visualizations/actual_vs_predic
-ted_structural.png Graphic file (type png)
-<use C:/Users/User/Documents/MATLAB/Struc cost/visualizations/actual_vs_predict
-ed_structural.png>
-Package pdftex.def Info: C:/Users/User/Documents/MATLAB/Struc cost/visualizatio
-ns/actual_vs_predicted_structural.png  used on input line 146.
+)
+<C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/actual_vs_predicted_m
+epfs.png, id=27, 647.0574pt x 389.2944pt>
+File: C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/actual_vs_predic
+ted_mepfs.png Graphic file (type png)
+<use C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/actual_vs_predict
+ed_mepfs.png>
+Package pdftex.def Info: C:/Users/User/Documents/MATLAB/MEPFS cost/visualizatio
+ns/actual_vs_predicted_mepfs.png  used on input line 103.
 (pdftex.def)             Requested size: 281.85587pt x 169.5793pt.
-<C:/Users/User/Documents/MATLAB/Struc cost/visualizations/residual_plot_structu
-ral.png, id=60, 647.0574pt x 389.2944pt>
-File: C:/Users/User/Documents/MATLAB/Struc cost/visualizations/residual_plot_st
-ructural.png Graphic file (type png)
-<use C:/Users/User/Documents/MATLAB/Struc cost/visualizations/residual_plot_str
-uctural.png>
-Package pdftex.def Info: C:/Users/User/Documents/MATLAB/Struc cost/visualizatio
-ns/residual_plot_structural.png  used on input line 151.
+ [2{C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.en
+c}{C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathex.enc
+}{C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}]
+<C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/residual_plot_mepfs.p
+ng, id=46, 647.0574pt x 389.2944pt>
+File: C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/residual_plot_me
+pfs.png Graphic file (type png)
+<use C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/residual_plot_mep
+fs.png>
+Package pdftex.def Info: C:/Users/User/Documents/MATLAB/MEPFS cost/visualizatio
+ns/residual_plot_mepfs.png  used on input line 108.
 (pdftex.def)             Requested size: 281.85587pt x 169.5793pt.
-<C:/Users/User/Documents/MATLAB/Struc cost/visualizations/performance_compariso
-n_structural.png, id=61, 647.0574pt x 389.2944pt>
-File: C:/Users/User/Documents/MATLAB/Struc cost/visualizations/performance_comp
-arison_structural.png Graphic file (type png)
-<use C:/Users/User/Documents/MATLAB/Struc cost/visualizations/performance_compa
-rison_structural.png>
-Package pdftex.def Info: C:/Users/User/Documents/MATLAB/Struc cost/visualizatio
-ns/performance_comparison_structural.png  used on input line 156.
+<C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/performance_compariso
+n_mepfs.png, id=47, 647.0574pt x 389.2944pt>
+File: C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/performance_comp
+arison_mepfs.png Graphic file (type png)
+<use C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/performance_compa
+rison_mepfs.png>
+Package pdftex.def Info: C:/Users/User/Documents/MATLAB/MEPFS cost/visualizatio
+ns/performance_comparison_mepfs.png  used on input line 113.
 (pdftex.def)             Requested size: 281.85587pt x 169.5793pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[5 <C:/Users/User/Documents/MATLAB/Struc cost/visualizations/actual_vs_predicte
-d_structural.png (PNG copy)> <C:/Users/User/Documents/MATLAB/Struc cost/visuali
-zations/residual_plot_structural.png (PNG copy)>] [6 <C:/Users/User/Documents/M
-ATLAB/Struc cost/visualizations/performance_comparison_structural.png (PNG copy
-)>]
-<C:/Users/User/Documents/MATLAB/Struc cost/visualizations/importance_top20_stru
-ctural.png, id=79, 903.375pt x 527.0892pt>
-File: C:/Users/User/Documents/MATLAB/Struc cost/visualizations/importance_top20
-_structural.png Graphic file (type png)
-<use C:/Users/User/Documents/MATLAB/Struc cost/visualizations/importance_top20_
-structural.png>
-Package pdftex.def Info: C:/Users/User/Documents/MATLAB/Struc cost/visualizatio
-ns/importance_top20_structural.png  used on input line 195.
-(pdftex.def)             Requested size: 375.80544pt x 219.27681pt.
-
-Overfull \hbox (25.61809pt too wide) in paragraph at lines 201--203
-\T1/lmr/m/n/10.95 (-20) If gen-er-ated, the ex-act ta-ble will be in-cluded be-
-low: (Run \T1/lmtt/m/n/10.95 extract_feature_importances_structural.m
- []
-
-
-LaTeX Warning: Reference `tab:feature_importances_top20_structural' on page 7 u
-ndefined on input line 205.
-
-
-Overfull \hbox (151.56903pt too wide) in paragraph at lines 208--209
-[]\T1/lmr/m/n/10.95 (-20) Next: [][]\T1/lmtt/m/n/10.95 total_concrete_volume*to
-tal_reinforcing_steel []\T1/lmr/m/n/10.95 (-20) = 12.41%; [][]\T1/lmtt/m/n/10.9
-5 total_gross_floor_area*total_concrete_volume
- []
-
-
-Overfull \hbox (11.87805pt too wide) in paragraph at lines 209--210
-[]\T1/lmr/m/n/10.95 (-20) Additional lead-ers: [][]\T1/lmtt/m/n/10.95 num_store
-ys*total_concrete_volume []\T1/lmr/m/n/10.95 (-20) = 6.62%; [][]\T1/lmtt/m/n/10
-.95 total_gross_floor_area
- []
-
-
-Overfull \hbox (72.13pt too wide) in paragraph at lines 215--216
-[]\T1/lmr/bx/n/10.95 (-20) Concrete and scale ef-fects: [][]\T1/lmtt/m/n/10.95 
-floor_area*concrete_volume []\T1/lmr/m/n/10.95 (-20) (11.76%) and [][]\T1/lmtt/
-m/n/10.95 num_storeys*concrete_volume
- []
-
-
-Overfull \hbox (35.53055pt too wide) in paragraph at lines 217--218
-[]\T1/lmr/bx/n/10.95 (-20) Program size and time pro-vide sec-ondary sig-nal: [
-][]\T1/lmtt/m/n/10.95 num_classrooms*total_reinforcing_steel
- []
-
-
-Overfull \hbox (15.73131pt too wide) in paragraph at lines 218--219
-[]\T1/lmr/bx/n/10.95 (-20) Formworks and in-ten-si-ties add re-fine-ments: [][]
-\T1/lmtt/m/n/10.95 areaofformworks*concrete_per_floor_area
- []
-
-
-Overfull \hbox (10.75497pt too wide) in paragraph at lines 218--219
-[]\T1/lmr/m/n/10.95 (-20) (2.27%), [][]\T1/lmtt/m/n/10.95 floor_area*areaofform
-works []\T1/lmr/m/n/10.95 (-20) (2.27%), [][]\T1/lmtt/m/n/10.95 concrete_volume
-*areaofformworks []\T1/lmr/m/n/10.95 (-20) (1.00%),
- []
-
-[7 <C:/Users/User/Documents/MATLAB/Struc cost/visualizations/importance_top20_s
-tructural.png (PNG copy)>]
+[3 <C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/actual_vs_predicte
+d_mepfs.png (PNG copy)> <C:/Users/User/Documents/MATLAB/MEPFS cost/visualizatio
+ns/residual_plot_mepfs.png (PNG copy)>]
+<C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/feature_importance_fi
+nal_mepfs.png, id=57, 647.0574pt x 389.2944pt>
+File: C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/feature_importan
+ce_final_mepfs.png Graphic file (type png)
+<use C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/feature_importanc
+e_final_mepfs.png>
+Package pdftex.def Info: C:/Users/User/Documents/MATLAB/MEPFS cost/visualizatio
+ns/feature_importance_final_mepfs.png  used on input line 139.
+(pdftex.def)             Requested size: 375.80544pt x 226.10573pt.
+ [4 <C:/Users/User/Documents/MATLAB/MEPFS cost/visualizations/performance_compa
+rison_mepfs.png (PNG copy)> <C:/Users/User/Documents/MATLAB/MEPFS cost/visualiz
+ations/feature_importance_final_mepfs.png (PNG copy)>]
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 227.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 153.
 
 
-LaTeX Warning: Reference `fig:feature_importances_top20_structural' on page 8 u
-ndefined on input line 250.
+LaTeX Warning: Reference `fig:feature_importances_top20_mepfs' on page 5 undefi
+ned on input line 176.
 
-[8] [9] (Struc_Eq.aux)
+[5] [6] (MEPFS budget.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
@@ -963,23 +757,17 @@ LaTeX Warning: There were undefined references.
 
 LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
-
-Package rerunfilecheck Warning: File `Struc_Eq.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `Struc_Eq.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  D41D8CD98F00B204E9800998ECF8427E;0.
+Package rerunfilecheck Info: File `"MEPFS budget".out' has not changed.
+(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 13370 strings out of 474486
- 213568 string characters out of 5744228
- 1940542 words of memory out of 5000000
- 35248 multiletter control sequences out of 15000+600000
- 625479 words of font info for 158 fonts, out of 8000000 for 9000
+ 13314 strings out of 474486
+ 213076 string characters out of 5744228
+ 1945542 words of memory out of 5000000
+ 35241 multiletter control sequences out of 15000+600000
+ 617565 words of font info for 139 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,10n,79p,1007b,608s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,9n,79p,1013b,606s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pfb
 ><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb>
 <C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmex10.pfb><
@@ -989,17 +777,15 @@ Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi8.pfb><C:/Us
 ers/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb><C:/User
 s/User/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr17.pfb><C:/Users/
 User/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr8.pfb><C:/Users/Use
-r/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr9.pfb><C:/Users/User/A
-ppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb><C:/Users/User/Ap
-pData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Users/User/App
-Data/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb><C:/Users/User/AppDa
-ta/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtk10.pfb><C:/Users/User/AppDat
-a/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Users/User/AppData
-/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt8.pfb><C:/Users/User/AppData/L
-ocal/Programs/MiKTeX/fonts/type1/public/lm/lmtt9.pfb>
-Output written on Struc_Eq.pdf (9 pages, 632279 bytes).
+r/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb><C:/Users/User
+/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Users/User/
+AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb><C:/Users/User/Ap
+pData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtk10.pfb><C:/Users/User/App
+Data/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Users/User/AppD
+ata/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt8.pfb>
+Output written on "MEPFS budget.pdf" (6 pages, 546028 bytes).
 PDF statistics:
- 213 PDF objects out of 1000 (max. 8388607)
- 61 named destinations out of 1000 (max. 500000)
- 41493 words of extra memory for PDF output out of 42996 (max. 10000000)
+ 166 PDF objects out of 1000 (max. 8388607)
+ 39 named destinations out of 1000 (max. 500000)
+ 34837 words of extra memory for PDF output out of 35830 (max. 10000000)
 

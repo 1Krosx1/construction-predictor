@@ -1,0 +1,137 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.75in,a4paper]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{siunitx} % For better number formatting
+\usepackage{hyperref} % For clickable links if needed
+\usepackage{array} % For custom column types
+\usepackage{pdflscape} % For landscape pages
+\usepackage{textcomp}
+\usepackage{xstring}
+
+\newcommand{\code}[1]{%
+  \begingroup\ttfamily
+  \StrSubstitute{#1}{_}{\textunderscore\allowbreak}[\tempA]%
+  \StrSubstitute{\tempA}{^}{\textasciicircum\allowbreak}[\tempB]%
+  \StrSubstitute{\tempB}{*}{\textasteriskcentered\allowbreak}[\tempC]%
+  \csname tempC\endcsname
+  \endgroup
+}
+
+\setlength{\extrarowheight}{2pt}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{6pt}
+\setlength\LTpre{6pt}
+\setlength\LTpost{6pt}
+
+\title{Numerical Analysis of All MEPFS Model Features}
+\author{Auto-generated Analysis}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Distribution and Importance of All 44 Features}
+\label{sec:all_features}
+The following table shows the statistical distribution and model importance for all 44 features, including the 8 core inputs and the 36 degree-2 polynomial features (squared terms and pairwise interactions).
+
+The table displays key percentiles, providing insight into the scale and spread of each feature, alongside its final importance percentage in the trained model.
+\begin{itemize}
+    \item \textbf{Min (0th Pctl):} The minimum value observed for the feature.
+    \item \textbf{25th Pctl:} The first quartile; 25\% of the data falls below this value.
+    \item \textbf{Median (50th Pctl):} The central value of the dataset.
+    \item \textbf{75th Pctl:} The third quartile; 75\% of the data falls below this value.
+    \item \textbf{Max (100th Pctl):} The maximum value observed for the feature.
+    \item \textbf{Importance (\%):} The feature's relative contribution to the model's predictive power.
+\end{itemize}
+
+\section*{From Raw Scores to Percentage Importance}
+\label{sec:percentage_importance}
+While the raw feature importance scores (calculated by summing MSE reductions) are useful for ranking features, they are often normalized to be expressed as percentages. This makes them easier to interpret as the relative contribution of each feature to the overall model performance.
+
+The conversion from a raw importance score, $\mathrm{Imp}(j)$, for a feature $j$ to a percentage is done by dividing the raw score by the sum of all raw scores and multiplying by 100.
+
+Let $I_j = \mathrm{Imp}(j)$ be the raw importance for feature $j$ out of $N$ total features. The percentage importance is calculated as:
+\[
+\text{Percentage Importance}(j) = \left( \frac{I_j}{\sum_{k=1}^{N} I_k} \right) \times 100\%
+\]
+This value represents the feature's share of the total importance across all predictors in the model. The bar charts showing feature importances typically display these percentage values.
+
+\begin{landscape}
+\begin{center}
+\footnotesize
+\sisetup{
+  round-mode = figures,
+  round-precision = 3,
+  scientific-notation = true
+}
+
+\begin{longtable}{
+  >{\raggedright\arraybackslash}p{4.5cm} % Feature name with wrapping
+  S[table-format=1.2e+2]
+  S[table-format=1.2e+2]
+  S[table-format=1.2e+2]
+  S[table-format=1.2e+2]
+  S[table-format=1.2e+2]
+  S[table-format=2.2]
+}
+\toprule
+\textbf{Feature Name} & {\textbf{Min}} & {\textbf{25th Pctl}} & {\textbf{Median}} & {\textbf{75th Pctl}} & {\textbf{Max}} & {\textbf{Importance (\%)}} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Feature Name} & {\textbf{Min}} & {\textbf{25th Pctl}} & {\textbf{Median}} & {\textbf{75th Pctl}} & {\textbf{Max}} & {\textbf{Importance (\%)}} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\code{year} & 2.00e+03 & 2.02e+03 & 2.02e+03 & 2.02e+03 & 2.02e+03 & 2.72 \\
+\code{num_storeys} & 1.00e+00 & 2.00e+00 & 2.00e+00 & 2.00e+00 & 4.00e+00 & 0.00 \\
+\code{num_classrooms} & 1.00e+00 & 4.00e+00 & 4.00e+00 & 6.00e+00 & 2.00e+01 & 0.41 \\
+\code{total_electrical_cost} & 2.10e+04 & 2.11e+05 & 3.90e+05 & 7.92e+05 & 3.88e+06 & 1.12 \\
+\code{total_plumbing_sewer_cost} & 0.00e+00 & 1.49e+05 & 2.26e+05 & 3.41e+05 & 2.49e+06 & 1.09 \\
+\code{electrical_cost_per_classroom} & 1.71e+03 & 5.74e+04 & 8.54e+04 & 1.52e+05 & 4.80e+05 & 0.73 \\
+\code{plumbing_cost_per_classroom} & 0.00e+00 & 3.24e+04 & 4.86e+04 & 7.16e+04 & 2.08e+05 & 0.32 \\
+\code{fire_alarm_cost_per_classroom} & 0.00e+00 & 0.00e+00 & 6.70e+03 & 1.62e+04 & 2.97e+05 & 0.30 \\
+\code{year^2} & 4.00e+06 & 4.08e+06 & 4.09e+06 & 4.10e+06 & 4.10e+06 & 0.00 \\
+\code{year*num_storeys} & 2.00e+03 & 4.03e+03 & 4.04e+03 & 4.05e+03 & 8.10e+03 & 2.25 \\
+\code{year*num_classrooms} & 2.02e+03 & 8.08e+03 & 8.09e+03 & 1.21e+04 & 4.04e+04 & 34.65 \\
+\code{year*total_electrical_cost} & 4.26e+07 & 4.26e+08 & 7.87e+08 & 1.60e+09 & 7.86e+09 & 0.00 \\
+\code{year*total_plumbing_sewer_cost} & 0.00e+00 & 3.01e+08 & 4.57e+08 & 6.90e+08 & 5.04e+09 & 0.00 \\
+\code{year*electrical_cost_per_classroom} & 3.45e+06 & 1.16e+08 & 1.73e+08 & 3.07e+08 & 9.69e+08 & 0.00 \\
+\code{year*plumbing_cost_per_classroom} & 0.00e+00 & 6.55e+07 & 9.84e+07 & 1.45e+08 & 4.20e+08 & 0.00 \\
+\code{year*fire_alarm_cost_per_classroom} & 0.00e+00 & 0.00e+00 & 1.35e+07 & 3.28e+07 & 6.01e+08 & 0.00 \\
+\code{num_storeys^2} & 1.00e+00 & 4.00e+00 & 4.00e+00 & 4.00e+00 & 1.60e+01 & 0.00 \\
+\code{num_storeys*num_classrooms} & 1.00e+00 & 5.00e+00 & 8.00e+00 & 1.60e+01 & 8.00e+01 & 11.33 \\
+\code{num_storeys*total_electrical_cost} & 2.10e+04 & 3.48e+05 & 7.08e+05 & 1.69e+06 & 1.55e+07 & 13.49 \\
+\code{num_storeys*total_plumbing_sewer_cost} & 0.00e+00 & 2.10e+05 & 4.22e+05 & 7.44e+05 & 9.96e+06 & 0.00 \\
+\code{num_storeys*electrical_cost_per_classroom} & 6.83e+03 & 9.06e+04 & 1.63e+05 & 3.10e+05 & 1.29e+06 & 1.92 \\
+\code{num_storeys*plumbing_cost_per_classroom} & 0.00e+00 & 5.33e+04 & 9.01e+04 & 1.53e+05 & 8.30e+05 & 3.55 \\
+\code{num_storeys*fire_alarm_cost_per_classroom} & 0.00e+00 & 0.00e+00 & 1.34e+04 & 3.47e+04 & 8.91e+05 & 0.93 \\
+\code{num_classrooms^2} & 1.00e+00 & 1.60e+01 & 1.60e+01 & 3.60e+01 & 4.00e+02 & 0.00 \\
+\code{num_classrooms*total_electrical_cost} & 4.21e+04 & 8.05e+05 & 1.65e+06 & 4.40e+06 & 4.66e+07 & 19.29 \\
+\code{num_classrooms*total_plumbing_sewer_cost} & 0.00e+00 & 4.89e+05 & 1.02e+06 & 2.00e+06 & 2.99e+07 & 1.02 \\
+\code{num_classrooms*electrical_cost_per_classroom} & 2.10e+04 & 2.11e+05 & 3.90e+05 & 7.92e+05 & 3.88e+06 & 0.00 \\
+\code{num_classrooms*plumbing_cost_per_classroom} & 0.00e+00 & 1.49e+05 & 2.26e+05 & 3.41e+05 & 2.49e+06 & 0.00 \\
+\code{num_classrooms*fire_alarm_cost_per_classroom} & 0.00e+00 & 0.00e+00 & 3.18e+04 & 7.15e+04 & 1.78e+06 & 2.06 \\
+\code{total_electrical_cost^2} & 4.42e+08 & 4.46e+10 & 1.52e+11 & 6.27e+11 & 1.51e+13 & 0.00 \\
+\code{total_electrical_cost*total_plumbing_sewer_cost} & 0.00e+00 & 3.01e+10 & 8.11e+10 & 2.89e+11 & 9.67e+12 & 0.70 \\
+\code{total_electrical_cost*electrical_cost_per_classroom} & 4.67e+07 & 1.32e+10 & 3.07e+10 & 9.87e+10 & 1.26e+12 & 0.60 \\
+\code{total_electrical_cost*plumbing_cost_per_classroom} & 0.00e+00 & 7.63e+09 & 1.91e+10 & 5.08e+10 & 8.06e+11 & 0.00 \\
+\code{total_electrical_cost*fire_alarm_cost_per_classroom} & 0.00e+00 & 0.00e+00 & 2.58e+09 & 1.52e+10 & 3.38e+11 & 0.35 \\
+\code{total_plumbing_sewer_cost^2} & 0.00e+00 & 2.21e+10 & 5.11e+10 & 1.16e+11 & 6.21e+12 & 0.00 \\
+\code{total_plumbing_sewer_cost*electrical_cost_per_classroom} & 0.00e+00 & 7.63e+09 & 1.91e+10 & 5.08e+10 & 8.06e+11 & 0.00 \\
+\code{total_plumbing_sewer_cost*plumbing_cost_per_classroom} & 0.00e+00 & 5.25e+09 & 1.19e+10 & 2.67e+10 & 5.17e+11 & 0.33 \\
+\code{total_plumbing_sewer_cost*fire_alarm_cost_per_classroom} & 0.00e+00 & 0.00e+00 & 1.54e+09 & 5.15e+09 & 2.17e+11 & 0.00 \\
+\code{electrical_cost_per_classroom^2} & 2.92e+06 & 3.30e+09 & 7.29e+09 & 2.32e+10 & 2.30e+11 & 0.00 \\
+\code{electrical_cost_per_classroom*plumbing_cost_per_classroom} & 0.00e+00 & 1.94e+09 & 3.78e+09 & 9.02e+09 & 6.72e+10 & 0.84 \\
+\code{electrical_cost_per_classroom*fire_alarm_cost_per_classroom} & 0.00e+00 & 0.00e+00 & 3.85e+08 & 2.53e+09 & 3.33e+10 & 0.00 \\
+\code{plumbing_cost_per_classroom^2} & 0.00e+00 & 1.05e+09 & 2.37e+09 & 5.12e+09 & 4.31e+10 & 0.00 \\
+\code{plumbing_cost_per_classroom*fire_alarm_cost_per_classroom} & 0.00e+00 & 0.00e+00 & 2.68e+08 & 9.74e+08 & 2.17e+10 & 0.00 \\
+\code{fire_alarm_cost_per_classroom^2} & 0.00e+00 & 0.00e+00 & 4.49e+07 & 2.64e+08 & 8.82e+10 & 0.00 \\
+\end{longtable}
+\end{center}
+\end{landscape}
+\end{document}
