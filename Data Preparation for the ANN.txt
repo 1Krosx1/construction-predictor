@@ -1,0 +1,83 @@
+Data Preparation for the ANN
+1. Data Source
+o Historical DepEd / school building projects.
+o Mention number of projects: e.g., N = xx projects.
+2. Input Variables (X)
+o Examples (adjust to your actual work):
+* Gross floor area (m²)
+* Number of storeys
+* Number of classrooms
+* Structural system (RC frame, load-bearing, etc.) 
+* Foundation type (isolated footings, mat footing, piles) 
+* Seismic/ wind zone (or region) ? location factor
+o Note: emphasize these are engineering / structural drivers of cost.
+3. Output Variable (Y)
+o Structural cost (PHP) per project.
+o Or total structural cost or cost per m².
+4. Preprocessing
+o Handling missing data.
+o Normalization / standardization of inputs (e.g., min–max scaling).
+o Train–validation–test split (e.g., 70%–15%–15%).
+
+ANN Architecture and Design --> THIS IS MISSING IN YOUR PAPER
+1. Type of ANN
+o Feedforward backpropagation network for regression.
+2. Network Structure
+o Input layer: number of neurons = number of input variables.
+o Hidden layers:
+* Example: 1–2 hidden layers (e.g., 10 neurons then 5 neurons).
+o Output layer: 1 neuron (structural cost).
+3. Activation Functions
+o Hidden layers: e.g., tansig / ReLU.
+o Output layer: purelin (linear) for cost.
+4. Training Algorithm
+o E.g., Levenberg–Marquardt (trainlm) or scaled conjugate gradient (trainscg).
+5. Model Equation (Conceptual)
+o Show general formula:
+C ?_"struct" =W^((2)) g(W^((1)) X+b^((1)))+b^((2))
+
+o Explain in words: inputs ? hidden layer ? predicted structural cost.
+MATLAB Implementation
+1. Software and Toolboxes
+o MATLAB version, Neural Network / Deep Learning Toolbox.
+2. Data Import
+o Import from Excel/CSV (e.g., readtable, xlsread).
+3. Network Creation (Code-Based) --> THIS IS WHAT YOU DID, RIGHT?
+o Example outline to show (not full code in slides, just key commands):
+* net = feedforwardnet([10 5]);
+* net = train(net, X_train, Y_train);
+* Y_pred = net(X_test);
+4. Network Creation (App-Based, if used) - --> THIS IS WHAT I MENTIONED BEFORE TO YOU, THE ANN TOOLBOX IN MATLAB ANN. BUT YOU OPTED FOR THE CODING, WHICH IS FINE BY THE WAY. YOU CAN YOUTUBE THIS.
+
+o Neural Net Fitting (nftool) / Regression Learner:
+* Show screenshot of:
+* Data loading
+* Network architecture setup
+* Performance window.
+5. Training Settings
+o Number of epochs/iterations.
+o Performance function (e.g., MSE).
+o Early stopping using validation set.
+
+Model Performance and Evaluation
+1. Performance Metrics
+o Mean Squared Error (MSE)
+o Root Mean Squared Error (RMSE)
+o Mean Absolute Percentage Error (MAPE)
+o Coefficient of determination (R²)
+2. Plots from MATLAB
+o Regression plot (target vs. predicted structural cost).
+o Performance plot (MSE vs. epochs for train/val/test).
+o Error histogram (optional).
+3. Accuracy Discussion
+o e.g., “Average MAPE of xx% indicates the ANN can reasonably predict structural cost.”
+o Compare with traditional rule-of-thumb (PHP/m²).
+
+Example Prediction (Engineering Interpretation)
+1. Sample Input Case
+o 2-storey school, 8 classrooms, 1,000 m², RC frame, isolated footings, Region IV-A.
+2. ANN Output
+o Predicted structural cost = ? xx,xxx,xxx.
+3. Comparison
+o Compare with actual cost for that project 
+

@@ -332,3 +332,24 @@ save('architectural_model_assets.mat', ...
     'poly_feature_names');
 disp("All model assets saved to 'architectural_model_assets.mat'.");
 disp(newline + "Process finished.");
+
+% =============================================================================
+% Section 10: Visualize a Decision Tree from the Ensemble
+% =============================================================================
+disp(newline + "--- Section 10: Visualizing a single tree ---");
+try
+    % Get the first tree from the final optimized ensemble
+    first_tree = optimized_model.Trained{1};
+
+    % Create a visualization of the tree
+    figure('Visible', 'off');
+    view(first_tree, 'Mode', 'graph');
+    
+    % Save the figure
+    title('Visualization of First Decision Tree in Ensemble');
+    saveas(gcf, 'visualizations/decision_tree_visualization.png');
+    disp("Saved: visualizations/decision_tree_visualization.png");
+    close(gcf);
+catch ME
+    warning("Could not visualize the decision tree. Error: %s", ME.message);
+end

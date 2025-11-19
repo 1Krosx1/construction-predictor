@@ -9,12 +9,13 @@ disp('Environment cleared.');
 % =============================================================================
 disp(newline + "--- Section 2: Data Loading & Cleaning ---");
 try
-    opts = detectImportOptions('C:\Users\User\Documents\MATLAB\MEPFS cost\MEPFS_Total_Cost.csv');
+    % changed to Architectural dataset
+    opts = detectImportOptions('C:\Users\User\Documents\MATLAB\Arch cost\Architectural_Total_Cost.csv');
     opts.VariableNamingRule = 'preserve';
-    T = readtable('C:\Users\User\Documents\MATLAB\MEPFS cost\MEPFS_Total_Cost.csv', opts);
-    disp("Dataset 'MEPFS_Total_Cost.csv' loaded successfully.");
+    T = readtable('C:\Users\User\Documents\MATLAB\Arch cost\Architectural_Total_Cost.csv', opts);
+    disp("Dataset 'Architectural_Total_Cost.csv' loaded successfully.");
 catch ME
-    error("Error loading 'MEPFS_Total_Cost.csv'. Check file path and format. (%s)", ME.message);
+    error("Error loading 'Architectural_Total_Cost.csv'. Check file path and format. (%s)", ME.message);
 end
 
 % --- Clean Column Names ---
@@ -81,28 +82,26 @@ end
 
 all_vars = T_clean.Properties.VariableNames;
 
-% Dynamically find column names
-panelboard_col = all_vars{contains(all_vars, 'panelboard')};
-lighting_col = all_vars{contains(all_vars, 'lightingfixtures')};
-conduits_col = all_vars{contains(all_vars, 'conduits')};
-wires_col = all_vars{contains(all_vars, 'wires')};
-sewer_col = all_vars{contains(all_vars, 'sewerline')};
-plumbing_col = all_vars{contains(all_vars, 'plumbingfixtures')};
-fire_alarm_col = all_vars{contains(all_vars, 'firealarm')};
+% Dynamically find column names (architectural)
+plaster_col = all_vars{contains(all_vars, 'plaster') & ~contains(all_vars,'per')};
+tiles_col = all_vars{contains(all_vars, 'glazedtiles')};
+paint_masonry_col = all_vars{contains(all_vars, 'paintingmasonry')};
+paint_wood_col = all_vars{contains(all_vars, 'paintingwood')};
+paint_metal_col = all_vars{contains(all_vars, 'paintingmetal')};
+chb100_col = all_vars{contains(all_vars, 'chb100')};
+chb150_col = all_vars{contains(all_vars, 'chb150')};
 
-% Create aggregated cost features
-T_clean.total_electrical_cost = T_clean.(panelboard_col) + T_clean.(lighting_col) + T_clean.(conduits_col) + T_clean.(wires_col);
-T_clean.total_plumbing_sewer_cost = T_clean.(sewer_col) + T_clean.(plumbing_col);
+% Create aggregated features (architectural)
+T_clean.total_painting_area = T_clean.(paint_masonry_col) + T_clean.(paint_wood_col) + T_clean.(paint_metal_col);
+T_clean.total_chb_area = T_clean.(chb100_col) + T_clean.(chb150_col);
+T_clean.total_finishes_area = T_clean.(plaster_col) + T_clean.(tiles_col);
 
-% Create powerful "per-unit" features
-T_clean.electrical_cost_per_classroom = T_clean.total_electrical_cost ./ T_clean.num_classrooms;
-T_clean.plumbing_cost_per_classroom = T_clean.total_plumbing_sewer_cost ./ T_clean.num_classrooms;
-T_clean.fire_alarm_cost_per_classroom = T_clean.(fire_alarm_col) ./ T_clean.num_classrooms;
+T_clean.plaster_per_chb = T_clean.(plaster_col) ./ T_clean.total_chb_area;
+T_clean.tiles_per_chb = T_clean.(tiles_col) ./ T_clean.total_chb_area;
 
 % Handle potential division by zero
-T_clean.electrical_cost_per_classroom(isinf(T_clean.electrical_cost_per_classroom) | isnan(T_clean.electrical_cost_per_classroom)) = 0;
-T_clean.plumbing_cost_per_classroom(isinf(T_clean.plumbing_cost_per_classroom) | isnan(T_clean.plumbing_cost_per_classroom)) = 0;
-T_clean.fire_alarm_cost_per_classroom(isinf(T_clean.fire_alarm_cost_per_classroom) | isnan(T_clean.fire_alarm_cost_per_classroom)) = 0;
+T_clean.plaster_per_chb(isinf(T_clean.plaster_per_chb) | isnan(T_clean.plaster_per_chb)) = 0;
+T_clean.tiles_per_chb(isinf(T_clean.tiles_per_chb) | isnan(T_clean.tiles_per_chb)) = 0;
 
 disp("Feature engineering complete.");
 
@@ -113,8 +112,9 @@ disp(newline + "--- Section 4: Generating and Analyzing Interaction Features ---
 
 final_feature_columns = { ...
     'year', 'num_storeys', 'num_classrooms', ...
-    'total_electrical_cost', 'total_plumbing_sewer_cost', ...
-    'electrical_cost_per_classroom', 'plumbing_cost_per_classroom', 'fire_alarm_cost_per_classroom'
+    'quantityofplaster_sq_m__', 'quantityofglazedtiles_sq_m__', ...
+    'total_painting_area', 'total_chb_area', 'total_finishes_area', ...
+    'plaster_per_chb', 'tiles_per_chb'
 };
 
 X_final_features = T_clean(:, final_feature_columns);
@@ -123,16 +123,16 @@ X_final_features = T_clean(:, final_feature_columns);
 [X_poly, poly_feature_names] = generatePolyFeatures(X_final_features, 2);
 fprintf("Generated %d total polynomial features.\n", size(X_poly, 2));
 
-
 % =============================================================================
 % Section 5: Load Model and Calculate Feature Importance
 % =============================================================================
 disp(newline + "--- Section 5: Loading Model and Calculating Importance ---");
 try
-    load('C:\Users\User\Documents\MATLAB\MEPFS cost\mepfs_model_assets.mat', 'optimized_model', 'selected_mask', 'poly_feature_names');
-    disp("Loaded 'mepfs_model_assets.mat' successfully.");
+    % load architectural assets (was mepfs)
+    load('C:\Users\User\Documents\MATLAB\Arch cost\architectural_model_assets.mat', 'optimized_model', 'selected_mask', 'poly_feature_names');
+    disp("Loaded 'architectural_model_assets.mat' successfully.");
 catch ME
-    error("Could not load 'mepfs_model_assets.mat'. Make sure the main script has been run. (%s)", ME.message);
+    error("Could not load 'architectural_model_assets.mat'. Make sure the main script has been run. (%s)", ME.message);
 end
 
 % Get importances for the selected features from the optimized model
@@ -174,7 +174,7 @@ results_table = table( ...
     'VariableNames', {'FeatureName', 'Min', 'Pctl25', 'Median', 'Pctl75', 'Max', 'ImportancePct'});
 
 % --- Display Header in Command Window ---
-fprintf('\n\n--- Numerical Analysis of MEPFS Model Features ---\n');
+fprintf('\n\n--- Numerical Analysis of Architectural Model Features ---\n');
 fprintf('%-50s %12s %12s %12s %12s %12s %15s\n', ...
     'Feature Name', 'Min', '25th Pctl', 'Median', '75th Pctl', 'Max', 'Importance (%)');
 fprintf([repmat('-', 1, 130) '\n']);
@@ -192,7 +192,7 @@ for i = 1:length(poly_feature_names)
 end
 
 % Export results to CSV for downstream analysis
-output_filename = 'mepfs_feature_percentiles.csv';
+output_filename = 'architectural_feature_percentiles.csv';
 writetable(results_table, output_filename);
 fprintf("Saved feature percentiles and importances to '%s'.\n", output_filename);
 

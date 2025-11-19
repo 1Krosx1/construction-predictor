@@ -1,9 +1,13 @@
 function [summary, breakdown] = estimate_MEPFS_budget(varargin)
-% estimate_MEPFS_budget  Estimate a high-level budget for MEPFS projects.
+% estimate_MEPFS_budget  Estimate a high-level budget for ARCH/Finishes projects.
 %
 % USAGE:
 %   summary = estimate_MEPFS_budget('Area',1000,'NumOccupants',100,...)
 %   [summary, breakdown] = estimate_MEPFS_budget(paramsStruct)
+%
+% NOTE: Although the filename/function name contains "MEPFS", this function
+%       now implements a high-level Architectural / Finishes estimator.
+%       It attempts to load 'architectural_model_assets.mat' when UseAssetsFile=true.
 %
 % INPUTS (name-value or a single struct):
 %   'Area'            - area in m^2 (default 1000)
@@ -41,8 +45,8 @@ else
     addParameter(p,'ContingencyPct',0.10,@(x)isnumeric(x)&&isscalar(x)&&x>=0);
     addParameter(p,'OverheadPct',0.12,@(x)isnumeric(x)&&isscalar(x)&&x>=0);
     addParameter(p,'InflationPct',0.03,@(x)isnumeric(x)&&isscalar(x)&&x>=0);
-    addParameter(p,'BaseCostPerM2',300,@(x)isnumeric(x)&&isscalar(x)&&x>=0);
-    addParameter(p,'Currency','USD',@ischar);
+    addParameter(p,'BaseCostPerM2',800,@(x)isnumeric(x)&&isscalar(x)&&x>=0); % Arch baseline
+    addParameter(p,'Currency','PHP',@ischar);
     addParameter(p,'UseAssetsFile',false,@(x)islogical(x)||ismember(x,[0 1]));
     parse(p,varargin{:});
     params = p.Results;
@@ -70,22 +74,16 @@ else
     cf = 1.0;
 end
 
-% Optional: load asset file to get equipment_cost
+% Optional: load architectural assets file to get additional equipment or overrides
 assetsLoaded = false;
 if isfield(params,'UseAssetsFile') && params.UseAssetsFile
-    assetsFile = fullfile(pwd,'mepfs_model_assets.mat');
+    assetsFile = fullfile(pwd,'architectural_model_assets.mat');
     if exist(assetsFile,'file')
         try
             S = load(assetsFile);
             if isfield(S,'equipment_cost')
                 params.EquipmentCost = params.EquipmentCost + S.equipment_cost;
                 assetsLoaded = true;
-            elseif isfield(S,'equipmentCost')
-                params.EquipmentCost = params.EquipmentCost + S.equipmentCost;
-                assetsLoaded = true;
-            else
-                % no recognized var; leave as-is
-                warning('Asset file found but no recognizable equipment cost variable inside.');
             end
         catch
             warning('Failed to load %s — ignoring asset file.',assetsFile);
@@ -95,20 +93,20 @@ if isfield(params,'UseAssetsFile') && params.UseAssetsFile
     end
 end
 
-% Heuristics and splits
+% Heuristics and splits (architectural-oriented)
 area = params.Area;
 base = params.BaseCostPerM2;
 
-direct_cost = area * base * cf; % cost of direct MEPFS works (materials + subcontract)
+direct_cost = area * base * cf; % architectural direct works
 
-% Discipline shares (sum = 1.0)
-shares = struct('Mechanical',0.30,'Electrical',0.25,'Plumbing',0.15,'Fire',0.10,'Structural',0.07,'Other',0.13);
+% Discipline shares adjusted for Architectural / finishes emphasis
+shares = struct('Finishes',0.40,'Structure',0.25,'Painting',0.10,'DoorsWindows',0.08,'Roofing',0.07,'Other',0.10);
 
-breakdown.Mechanical = direct_cost * shares.Mechanical;
-breakdown.Electrical = direct_cost * shares.Electrical;
-breakdown.Plumbing   = direct_cost * shares.Plumbing;
-breakdown.Fire       = direct_cost * shares.Fire;
-breakdown.Structural = direct_cost * shares.Structural;
+breakdown.Finishes = direct_cost * shares.Finishes;
+breakdown.Structure = direct_cost * shares.Structure;
+breakdown.Painting   = direct_cost * shares.Painting;
+breakdown.DoorsWindows = direct_cost * shares.DoorsWindows;
+breakdown.Roofing = direct_cost * shares.Roofing;
 breakdown.Other      = direct_cost * shares.Other;
 
 % Labor estimate: simple hours per m2 * complexity
@@ -149,18 +147,18 @@ summary.LaborRate = params.LaborRate;
 summary.BaseCostPerM2 = params.BaseCostPerM2;
 summary.AssetsLoaded = assetsLoaded;
 
-% If no outputs requested, print a friendly table
+% If no outputs requested, print a friendly table (update currency label)
 if nargout == 0
-    fprintf('\nMEPFS Budget Estimate (currency: %s)\n',params.Currency);
+    fprintf('\nArchitectural Budget Estimate (currency: %s)\n',params.Currency);
     fprintf('----------------------------------------\n');
     fprintf('Area: %.0f m^2, Occupants: %.0f, Complexity factor: %.2f\n',summary.Area,summary.NumOccupants,summary.ComplexityFactor);
     fprintf('\nDirect works breakdown:\n');
-    fprintf('  Mechanical: %s %.2f\n',params.Currency,breakdown.Mechanical);
-    fprintf('  Electrical: %s %.2f\n',params.Currency,breakdown.Electrical);
-    fprintf('  Plumbing:   %s %.2f\n',params.Currency,breakdown.Plumbing);
-    fprintf('  Fire:       %s %.2f\n',params.Currency,breakdown.Fire);
-    fprintf('  Structural: %s %.2f\n',params.Currency,breakdown.Structural);
-    fprintf('  Other:      %s %.2f\n',params.Currency,breakdown.Other);
+    fprintf('  Finishes: %s %.2f\n',params.Currency,breakdown.Finishes);
+    fprintf('  Structure: %s %.2f\n',params.Currency,breakdown.Structure);
+    fprintf('  Painting: %s %.2f\n',params.Currency,breakdown.Painting);
+    fprintf('  Doors/Windows: %s %.2f\n',params.Currency,breakdown.DoorsWindows);
+    fprintf('  Roofing: %s %.2f\n',params.Currency,breakdown.Roofing);
+    fprintf('  Other: %s %.2f\n',params.Currency,breakdown.Other);
     fprintf('\nLabor (%.1f hrs): %s %.2f\n',summary.EstimatedLaborHours,params.Currency,summary.LaborCost);
     fprintf('Equipment: %s %.2f\n',params.Currency,summary.EquipmentCost);
     fprintf('\nSubtotal: %s %.2f\n',params.Currency,summary.Subtotal);
@@ -169,7 +167,6 @@ if nargout == 0
     fprintf('Inflation (%.1f%%): %s %.2f\n',params.InflationPct*100,params.Currency,summary.Inflation);
     fprintf('\nTOTAL ESTIMATED BUDGET: %s %.2f\n\n',params.Currency,summary.Total);
 else
-    % Also include discipline breakdown in the output variable for programmatic use
-    % convert breakdown values to numeric fields (already numeric)
+    % programmatic return
 end
 end
