@@ -5,7 +5,8 @@ classdef ArchBudgetPredictorProgrammatic < matlab.apps.AppBase
         UIFigure                     matlab.ui.Figure
         Grid                        matlab.ui.container.GridLayout
         TitleLabel                  matlab.ui.control.Label
-    NumStoreysSpinner           matlab.ui.control.Spinner
+        YearDropdown                matlab.ui.control.DropDown
+        NumStoreysSpinner           matlab.ui.control.Spinner
         NumClassroomsSpinner        matlab.ui.control.Spinner
         QuantityOfPlasterField      matlab.ui.control.NumericEditField
         QuantityOfGlazedTilesField  matlab.ui.control.NumericEditField
@@ -55,7 +56,21 @@ classdef ArchBudgetPredictorProgrammatic < matlab.apps.AppBase
     app.TitleLabel.Layout.Column = [1 4];
     app.TitleLabel.HorizontalAlignment = 'center';
     
-    % PARAM 6
+    % Row 2 - PARAM 1 (Year), PARAM 6 (Total CHB)
+    pGrid1 = uigridlayout(app.Grid,[2,1]);
+    pGrid1.Layout.Row = 2; pGrid1.Layout.Column = 1;
+    pGrid1.RowHeight = {'fit','1x'}; pGrid1.Padding = [8 8 8 8];
+    pGrid1.BackgroundColor = [0.94 0.94 0.96];
+    lbl = uilabel(pGrid1,'Text','Year (YYYY)','HorizontalAlignment','center','FontWeight','bold');
+    lbl.Layout.Row = 1; lbl.Layout.Column = 1;
+    lbl.BackgroundColor = [0.94 0.94 0.96];
+    lbl.FontColor = [0 0 0];
+    years = arrayfun(@num2str,2000:2028,'UniformOutput',false);
+    app.YearDropdown = uidropdown(pGrid1,'Items',years,'Value','2024');
+    app.YearDropdown.Layout.Row = 2; app.YearDropdown.Layout.Column = 1;
+    app.YearDropdown.BackgroundColor = [1 1 1];
+    app.YearDropdown.FontColor = [0 0 0];
+
     pGrid6 = uigridlayout(app.Grid,[2,1]);
     pGrid6.Layout.Row = 2; pGrid6.Layout.Column = 3;
     pGrid6.RowHeight = {'fit','1x'}; pGrid6.Padding = [8 8 8 8];
@@ -263,6 +278,8 @@ end
                 return;
             end
             f = matlab.lang.makeValidName('year');
+            if isfield(app.medians,f), app.YearDropdown.Value = num2str(round(app.medians.(f))); end
+            f = matlab.lang.makeValidName('num_storeys');
             if isfield(app.medians,f), app.NumStoreysSpinner.Value = round(app.medians.(f)); end
             f = matlab.lang.makeValidName('num_classrooms');
             if isfield(app.medians,f), app.NumClassroomsSpinner.Value = round(app.medians.(f)); end
@@ -286,8 +303,12 @@ end
         function onPredict(app)
     fprintf('--- Starting Prediction ---\n');
 
+    % Convert year dropdown selection to numeric
+    yr = str2double(app.YearDropdown.Value);
+
     % Build the canonical values vector in the order THIS app uses
-    vals_app = [app.NumStoreysSpinner.Value, ...
+    vals_app = [yr, ...
+                app.NumStoreysSpinner.Value, ...
                 app.NumClassroomsSpinner.Value, ...
                 app.QuantityOfPlasterField.Value, ...        % ensure name matches properties
                 app.QuantityOfGlazedTilesField.Value, ...
@@ -366,6 +387,7 @@ end
 end
 
         function onReset(app)
+            app.YearDropdown.Value = '2024';
             app.NumStoreysSpinner.Value = 2;
             app.NumClassroomsSpinner.Value = 4;
             app.QuantityOfPlasterField.Value = 1000;
